@@ -5,6 +5,7 @@ import morgan from 'morgan';
 import rateLimit from 'express-rate-limit';
 import passport from 'passport';
 import session from './config/session.js';
+import authRoutes from './routes/auth.routes.js';
 import errorHandler, { notFound } from './middlewares/errorHandler.js';
 
 const app = express();
@@ -27,10 +28,7 @@ app.use('/api/auth', authLimiter);
 
 app.get('/api/health', (req, res) => res.json({ status: 'ok' }));
 
-// Routes (baad mein)
-// app.use('/api/auth', authRoutes);
-// app.use('/api/teams', teamRoutes);
-// app.use('/api/tasks', taskRoutes);
+app.use('/api/auth', authRoutes);
 
 app.use(notFound);
 app.use(errorHandler);
