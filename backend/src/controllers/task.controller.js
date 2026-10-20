@@ -39,6 +39,37 @@ const findTaskForUser = async (taskId, userId) => {
     return { task, membership };
 };
 
+const toDateString = (date) => date.toISOString().slice(0, 10);
+
+export const getReminders = asyncHandler(async (req, res) => {
+    const today = new Date();
+    const limit = new Date();
+    limit.setDate(limit.getDate() + 2);
+
+    const tasks = await Task.findAll({
+        where: {
+            assigneeId: req.user.id,
+            status: {
+                [Op.ne]: 'done'
+            },
+            dueDate: {
+                [Op.lte]: toDateString(limit)
+            },
+        },
+        include: taskInclude,
+        order: [
+            ['dueDate', 'ASC']
+        ],
+    });
+
+    const todayStr = toDateString(today);
+    res.json({
+        overdue: tasks.filter((t) => t.dueDate < todayStr),
+        dueSoon: tasks.filter((t) => t.dueDate >= todayStr),
+        message: "Pending task fetch successfully"
+    });
+});
+
 export const createTask = asyncHandler(async (req, res) => {
     const { teamId, assigneeId } = req.body;
 
