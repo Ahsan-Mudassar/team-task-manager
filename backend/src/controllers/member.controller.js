@@ -12,7 +12,7 @@ export const addMember = asyncHandler(async (req, res) => {
 
     const exists = await TeamMember.findOne({ where: { teamId, userId: user.id } });
 
-    if (exists) throw new ApiError(409, 'User is already a team member');
+    if (exists) throw new ApiError(409, 'User is already your team member');
 
     await TeamMember.create({
         teamId,
@@ -28,7 +28,8 @@ export const addMember = asyncHandler(async (req, res) => {
                 name: user.name,
                 email: user.email,
                 role: 'member'
-            }
+            },
+            message: "New member added successfuly"
         });
 });
 
@@ -58,5 +59,5 @@ export const removeMember = asyncHandler(async (req, res) => {
 
     res
         .status(204)
-        .end();
+        .json({ message: "Member remove successfuly" })
 });
