@@ -3,11 +3,10 @@ import { Team, TeamMember, User } from '../models/index.js';
 import asyncHandler from '../utils/asyncHandler.js';
 
 export const createTeam = asyncHandler(async (req, res) => {
-    const { ...data } = req.body
 
     const team = await sequelize.transaction(async (t) => {
         const created = await Team.create(
-            { data, creatorId: req.user.id },
+            { ...req.body, creatorId: req.user.id },
             { transaction: t }
         );
 
@@ -20,7 +19,7 @@ export const createTeam = asyncHandler(async (req, res) => {
     });
     res
         .status(201)
-        .json({ team });
+        .json({ team, message: "Team successfully created" });
 });
 
 export const listMyTeams = asyncHandler(async (req, res) => {
@@ -30,6 +29,7 @@ export const listMyTeams = asyncHandler(async (req, res) => {
         .status(200)
         .json({
             teams: teams.map((t) => ({ ...t.toJSON(), role: t.TeamMember.role })),
+            message: "Your teams list fetch successfuly"
         });
 });
 
@@ -48,7 +48,10 @@ export const getTeam = asyncHandler(async (req, res) => {
     });
     res
         .status(200)
-        .json({ team });
+        .json({
+            team,
+            message: "Team fetch successfuly"
+        });
 });
 
 export const updateTeam = asyncHandler(async (req, res) => {
@@ -65,5 +68,7 @@ export const deleteTeam = asyncHandler(async (req, res) => {
     const teamId = req.params.teamId
     await Team.destroy({ where: { id: teamId } });
 
-    res.status(204).end();
+    res
+        .status(204)
+        .json({ message: "Team successfuly deleted" });
 });
