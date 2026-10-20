@@ -7,7 +7,9 @@ import { authLimiter } from './middlewares/rateLimiter.js';
 import passport from 'passport';
 import session from './config/session.js';
 import authRoutes from './routes/auth.routes.js';
+import teamRoutes from './routes/team.routes.js';
 import errorHandler, { notFound } from './middlewares/errorHandler.js';
+import isAuthenticated from './middlewares/isAuthenticated.js';
 
 const app = express();
 const isProd = process.env.NODE_ENV === 'production';
@@ -29,6 +31,7 @@ app.use('/api/auth', authLimiter);
 app.get('/api/health', (req, res) => res.json({ status: 'ok' }));
 
 app.use('/api/auth', authRoutes);
+app.use('/api/teams', isAuthenticated, teamRoutes);
 
 app.use(notFound);
 app.use(errorHandler);
