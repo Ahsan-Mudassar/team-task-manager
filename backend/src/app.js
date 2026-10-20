@@ -1,8 +1,9 @@
+import './config/passport.js'
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
-import rateLimit from 'express-rate-limit';
+import { authLimiter } from './middlewares/rateLimiter.js';
 import passport from 'passport';
 import session from './config/session.js';
 import authRoutes from './routes/auth.routes.js';
@@ -23,7 +24,6 @@ app.use(session);
 app.use(passport.initialize());
 app.use(passport.session());
 
-const authLimiter = rateLimit({ windowMs: 15 * 60 * 1000, limit: 20 });
 app.use('/api/auth', authLimiter);
 
 app.get('/api/health', (req, res) => res.json({ status: 'ok' }));
