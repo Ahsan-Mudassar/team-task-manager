@@ -1,24 +1,12 @@
-import {  useState } from 'react';
+import { useMemo, useState } from 'react';
 import { NavLink, Outlet } from 'react-router-dom';
 import { CheckCircle2, LogOut, Menu, X } from 'lucide-react';
 import toast from 'react-hot-toast';
 import useAuth from '../../hooks/useAuth';
 import { getInitials } from '../../utils/format';
 
-const LINKS = [
-    {
-        to: '/',
-        label: 'Dashboard',
-        end: true
-    },
-    {
-        to: '/teams',
-        label: 'Teams'
-    },
-];
-
-const linkClass = ({ isActive }) => `rounded-lg px-3 py-2 text-sm font-medium transition 
-${isActive ? 'bg-[#eaedff] text-primary' : 'text-muted hover:bg-surface hover:text-ink'
+const linkClass = ({ isActive }) => 
+    `rounded-lg px-3 py-2 text-sm font-medium transition ${isActive ? 'bg-[#eaedff] text-primary' : 'text-muted hover:bg-surface hover:text-ink'
     }`;
 
 export default function AppLayout() {
@@ -32,6 +20,22 @@ export default function AppLayout() {
             toast.error('Could not log out. Please try again.');
         }
     };
+
+    const LINKS = useMemo(() => {
+        const lastTeam = localStorage.getItem('lastVisitedTeamId')
+
+        return [
+            {
+                to: '/',
+                label: 'Dashboard',
+                end: true
+            },
+            {
+                to: lastTeam ? `/teams/${lastTeam}` : '/teams',
+                label: 'Teams'
+            },
+        ];
+    }, []);
 
     return (
         <div className="min-h-screen bg-surface font-sans">

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { ArrowLeft, Pencil, Trash2 } from 'lucide-react';
 import toast from 'react-hot-toast';
@@ -25,6 +25,12 @@ export default function TeamDetailsPage() {
     const [deleteOpen, setDeleteOpen] = useState(false);
     const [memberToRemove, setMemberToRemove] = useState(null);
     const [busy, setBusy] = useState(false);
+
+    useEffect(() => {
+        if (teamId) {
+            localStorage.setItem('lastVisitedTeamId', teamId)
+        }
+    }, [teamId])
 
     if (loading) return <Spinner />;
     if (error) {
