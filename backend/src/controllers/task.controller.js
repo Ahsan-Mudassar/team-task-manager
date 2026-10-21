@@ -85,7 +85,7 @@ export const createTask = asyncHandler(async (req, res) => {
 });
 
 export const listTasks = asyncHandler(async (req, res) => {
-    const { teamId, assigneeId, status, search, page, limit } = req.validated.query;
+    const { teamId, assigneeId, status, priority, search, page, limit } = req.validated.query;
 
     const memberships = await TeamMember.findAll({
         where: { userId: req.user.id },
@@ -98,6 +98,7 @@ export const listTasks = asyncHandler(async (req, res) => {
     const where = { teamId: teamId ?? myTeamIds };
     if (assigneeId) where.assigneeId = assigneeId === 'me' ? req.user.id : assigneeId;
     if (status) where.status = status;
+    if (priority) where.priority = priority;
     if (search) where.title = { [Op.iLike]: `%${search}%` };
 
     const { rows, count } = await Task.findAndCountAll({
