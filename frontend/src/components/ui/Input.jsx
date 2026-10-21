@@ -19,8 +19,13 @@ export default function Input({ label, icon: Icon, error, type = 'text', id, ...
                     id={inputId}
                     type={isPassword && visible ? 'text' : type}
                     aria-invalid={Boolean(error)}
-                    className={`h-10 w-full rounded-lg bg-white pl-10 pr-10 text-sm text-ink shadow-sm outline-none ring-1 transition focus:ring-2 ${error ? 'ring-danger focus:ring-danger' : 'ring-line focus:ring-primary'
-                        }`}
+                    className={
+                        `h-10 w-full rounded-lg bg-white text-sm text-ink shadow-sm outline-none ring-1 transition focus:ring-2 
+                        ${Icon ? 'pl-10' : 'pl-3.5'} 
+                        ${isPassword ? 'pr-10' : 'pr-3.5'} 
+                        ${error ? 'ring-danger focus:ring-danger' : 'ring-line focus:ring-primary'
+                        }`
+                    }
                     {...props}
                 />
 
