@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Plus, Users } from 'lucide-react';
 import Button from '../components/ui/Button';
@@ -7,11 +7,16 @@ import { EmptyState, ErrorState } from '../components/ui/StateViews';
 import TeamCard from '../components/teams/TeamCard';
 import TeamFormModal from '../components/teams/TeamFormModal';
 import useTeams from '../hooks/useTeams';
+import usePageTitle from '../hooks/usePageTitle';
 
 export default function TeamsPage() {
     const navigate = useNavigate();
     const { teams, loading, error, reload } = useTeams();
     const [createOpen, setCreateOpen] = useState(false);
+
+    useEffect(() => {
+        reload();
+    }, [reload])
 
     const newTeamButton = (
         <Button size="sm" onClick={() => setCreateOpen(true)}>
@@ -20,6 +25,7 @@ export default function TeamsPage() {
     );
 
     const renderContent = () => {
+        usePageTitle('Teams');
         if (loading) return <Spinner />;
         if (error) return <ErrorState message={error.message} onRetry={reload} />;
 

@@ -18,8 +18,11 @@ import useTaskFilters from '../hooks/useTaskFilters';
 import { deleteTask, getReminders, getTasks } from '../api/tasks.api';
 import { getTeam } from '../api/team.api';
 import { getErrorMessage } from '../utils/errors';
+import usePageTitle from '../hooks/usePageTitle';
+import TaskCardSkeleton from '../components/tasks/TaskCardSkeleton';
 
 export default function DashboardPage() {
+  usePageTitle('Dashboard');
   const { user } = useAuth();
   const { teams, loading: teamsLoading, error: teamsError, reload: reloadTeams } = useTeams();
   const { filters, setFilter, clearFilters, apiParams, hasActiveFilters } = useTaskFilters();
@@ -30,6 +33,7 @@ export default function DashboardPage() {
   const remindersQ = useFetch(
     getReminders,
     []);
+
   const teamQ = useFetch(() => (
     filters.team ? getTeam(filters.team) : Promise.resolve(null)
   ), [filters.team]);
@@ -81,7 +85,14 @@ export default function DashboardPage() {
   }
 
   const renderTasks = () => {
-    if (tasksQ.loading && !tasksQ.data) return <Spinner />;
+    if (tasksQ.loading && !tasksQ.data) {
+      return (
+        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+          {Array.from({ length: 6 }, (_, i) => <TaskCardSkeleton key={i} />)}
+        </div>
+      );
+    }
+
     if (tasksQ.error) return <ErrorState message={tasksQ.error.message} onRetry={tasksQ.reload} />;
 
     const { tasks, pagination: pg } = tasksQ.data;

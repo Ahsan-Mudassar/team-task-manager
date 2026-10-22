@@ -8,8 +8,10 @@ import Button from '../components/ui/Button';
 import useAuth from '../hooks/useAuth';
 import { validateRegister } from '../utils/validators';
 import { getErrorMessage, getFieldErrors } from '../utils/errors.js';
+import usePageTitle from '../hooks/usePageTitle.js';
 
 export default function RegisterPage() {
+    usePageTitle('Create account');
     const { register } = useAuth();
     const navigate = useNavigate();
     const [form, setForm] = useState({

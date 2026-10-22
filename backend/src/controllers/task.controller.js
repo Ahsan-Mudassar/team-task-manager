@@ -99,7 +99,12 @@ export const listTasks = asyncHandler(async (req, res) => {
     if (assigneeId) where.assigneeId = assigneeId === 'me' ? req.user.id : assigneeId;
     if (status) where.status = status;
     if (priority) where.priority = priority;
-    if (search) where.title = { [Op.iLike]: `%${search}%` };
+    if (search) {
+        where[Op.or] = [
+            { title: { [Op.iLike]: `%${search}%` } },
+            { description: { [Op.iLike]: `%${search}%` } },
+        ];
+    }
 
     const { rows, count } = await Task.findAndCountAll({
         where,
