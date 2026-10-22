@@ -14,8 +14,10 @@ import useFetch from '../hooks/useFetch';
 import useAuth from '../hooks/useAuth';
 import { deleteTeam, getTeam, removeMember } from '../api/team.api.js';
 import { getErrorMessage } from '../utils/errors';
+import useTeams from '../hooks/useTeams';
 
 export default function TeamDetailsPage() {
+    const { reload: refreshTeams } = useTeams();
     const { teamId } = useParams();
     const { user } = useAuth();
     const navigate = useNavigate();
@@ -52,6 +54,7 @@ export default function TeamDetailsPage() {
         try {
             await deleteTeam(team.id);
             toast.success('Team deleted');
+            refreshTeams();
             navigate('/teams', { replace: true });
         } catch (err) {
             toast.error(getErrorMessage(err));
@@ -69,6 +72,7 @@ export default function TeamDetailsPage() {
             await removeMember(team.id, member.id);
             if (isSelf) {
                 toast.success('You left the team');
+                refreshTeams();
                 navigate('/teams', { replace: true });
                 return;
             }
@@ -146,7 +150,7 @@ export default function TeamDetailsPage() {
                 open={editOpen}
                 onClose={() => setEditOpen(false)}
                 team={team}
-                onSaved={(updated) => setData((prev) => ({ ...prev, ...updated }))} />
+                onSaved={(updated) => { setData((prev) => ({ ...prev, ...updated })); refreshTeams(); }}/>
 
             <ConfirmDialog
                 open={deleteOpen}

@@ -42,3 +42,17 @@ export const validateTeam = ({ name, description }) => {
 
     return clean(errors);
 };
+
+export const validateTask = ({ title, description, teamId }) => {
+  const errors = {};
+  const t = title.trim();
+  if (t.length < 2) errors.title = 'Title must be at least 2 characters';
+  else if (t.length > 150) errors.title = 'Title must be 150 characters or less';
+  else if (!NO_TAGS.test(t)) errors.title = 'Title must not contain < or >';
+
+  if (description.length > 2000) errors.description = 'Description must be 2000 characters or less';
+  else if (!NO_TAGS.test(description)) errors.description = 'Description must not contain < or >';
+
+  if (!teamId) errors.teamId = 'Please select a team';
+  return clean(errors);
+};
