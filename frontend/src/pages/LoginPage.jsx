@@ -8,8 +8,10 @@ import Button from '../components/ui/Button';
 import useAuth from '../hooks/useAuth';
 import { validateLogin } from '../utils/validators';
 import { getErrorMessage, getFieldErrors } from '../utils/errors.js';
+import usePageTitle from '../hooks/usePageTitle.js';
 
 export default function LoginPage() {
+  usePageTitle('Log in');
   const { login } = useAuth();
   const navigate = useNavigate();
   const [form, setForm] = useState({
@@ -72,7 +74,7 @@ export default function LoginPage() {
           value={form.email}
           onChange={handleChange}
           error={errors.email} />
-          
+
         <Input
           label="Password"
           name="password"

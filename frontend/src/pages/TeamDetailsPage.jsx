@@ -15,6 +15,7 @@ import useAuth from '../hooks/useAuth';
 import { deleteTeam, getTeam, removeMember } from '../api/team.api.js';
 import { getErrorMessage } from '../utils/errors';
 import useTeams from '../hooks/useTeams';
+import usePageTitle from '../hooks/usePageTitle.js';
 
 export default function TeamDetailsPage() {
     const { reload: refreshTeams } = useTeams();
@@ -22,7 +23,7 @@ export default function TeamDetailsPage() {
     const { user } = useAuth();
     const navigate = useNavigate();
     const { data: team, setData, loading, error, reload } = useFetch(() => getTeam(teamId), [teamId]);
-
+    usePageTitle(team?.name ?? 'Team');
     const [editOpen, setEditOpen] = useState(false);
     const [deleteOpen, setDeleteOpen] = useState(false);
     const [memberToRemove, setMemberToRemove] = useState(null);
@@ -150,7 +151,7 @@ export default function TeamDetailsPage() {
                 open={editOpen}
                 onClose={() => setEditOpen(false)}
                 team={team}
-                onSaved={(updated) => { setData((prev) => ({ ...prev, ...updated })); refreshTeams(); }}/>
+                onSaved={(updated) => { setData((prev) => ({ ...prev, ...updated })); refreshTeams(); }} />
 
             <ConfirmDialog
                 open={deleteOpen}

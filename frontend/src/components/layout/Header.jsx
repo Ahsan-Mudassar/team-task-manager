@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
-import { ChevronRight, Menu, Search } from 'lucide-react';
+import { ChevronRight, Menu, Search, X } from 'lucide-react';
 import useAuth from '../../hooks/useAuth';
 import useDebounce from '../../hooks/useDebounce';
 import { getInitials } from '../../utils/format';
@@ -15,6 +15,7 @@ function HeaderSearch() {
   const [params, setParams] = useSearchParams();
   const { pathname } = useLocation();
   const navigate = useNavigate();
+  const inputRef = useRef(null);
   const qParam = params.get('q') || '';
   const lastPushed = useRef(qParam);
   const [value, setValue] = useState(qParam);
@@ -29,17 +30,28 @@ function HeaderSearch() {
 
   useEffect(() => {
     if (pathname !== '/' || debounced === lastPushed.current) return;
-
     lastPushed.current = debounced;
+
     setParams((prev) => {
       const next = new URLSearchParams(prev);
       if (debounced) next.set('q', debounced);
       else next.delete('q');
-
       next.delete('page');
       return next;
     }, { replace: true });
   }, [debounced, pathname, setParams]);
+
+  useEffect(() => {
+    const onKey = (e) => {
+      const tag = document.activeElement?.tagName;
+      if (e.key === '/' && !['INPUT', 'TEXTAREA', 'SELECT'].includes(tag)) {
+        e.preventDefault();
+        inputRef.current?.focus();
+      }
+    };
+    document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
+  }, []);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -48,17 +60,23 @@ function HeaderSearch() {
 
   return (
     <form onSubmit={handleSubmit} role="search" className="relative w-full max-w-xs">
-      <Search
-        size={14}
-        className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-[#777587]" />
+      <Search size={14} className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-[#777587]" />
       <input
-        type="search"
+        ref={inputRef}
+        type="text"
         value={value}
         onChange={(e) => setValue(e.target.value)}
-        placeholder="Search tasks..."
+        onKeyDown={(e) => e.key === 'Escape' && setValue('')}
+        placeholder="Search tasks…  ( / )"
         aria-label="Search tasks"
-        className="h-9 w-full rounded-xl bg-white pl-9 pr-3 text-xs text-ink shadow-sm outline-none ring-1 ring-transparent focus:ring-primary"
+        className="h-9 w-full rounded-xl bg-white pl-9 pr-8 text-xs text-ink shadow-sm outline-none ring-1 ring-transparent focus:ring-primary"
       />
+      {value && (
+        <button type="button" onClick={() => setValue('')} aria-label="Clear search"
+          className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted hover:text-ink">
+          <X size={14} />
+        </button>
+      )}
     </form>
   );
 }
