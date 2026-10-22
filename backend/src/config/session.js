@@ -1,17 +1,15 @@
 import { Pool } from 'pg';
+import { pgPoolConfig } from './dbConfig.js';
 import session from 'express-session';
 import pgSession from 'connect-pg-simple';
 
 const isProd = process.env.NODE_ENV === 'production';
-const useMemory = process.env.SESSION_STORE === 'memory';
 const PgSession = pgSession(session);
+const useMemory = process.env.SESSION_STORE === 'memory';
 
 const store = useMemory
   ? undefined
-  : new PgSession({
-    pool: new Pool({ connectionString: process.env.DB_URL }),
-    createTableIfMissing: true,
-  });
+  : new PgSession({ pool: new Pool(pgPoolConfig), createTableIfMissing: true });
 
 export default session({
   store,
@@ -20,8 +18,8 @@ export default session({
   saveUninitialized: false,
   cookie: {
     httpOnly: true,
-    sameSite: 'lax',
-    secure: isProd,
+    sameSite: isProd ? 'none': 'lax',
+    secure: isProd ,
     maxAge: 1000 * 60 * 60 * 24 * 7,
   },
 });

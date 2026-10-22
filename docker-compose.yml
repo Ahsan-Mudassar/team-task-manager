@@ -1,0 +1,34 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: appuser
+      POSTGRES_PASSWORD: localpass
+      POSTGRES_DB: taskmanager
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U appuser -d taskmanager"]
+      interval: 5s
+      retries: 10
+
+  app:
+    build: .
+    ports:
+      - "8080:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      PORT: "8080"
+      COOKIE_SECURE: "false"
+      DB_HOST: db
+      DB_PORT: "5432"
+      DB_NAME: taskmanager
+      DB_USER: appuser
+      DB_PASSWORD: localpass
+      SESSION_SECRET: local_dev_secret_change_me
+
+volumes:
+  pgdata:
