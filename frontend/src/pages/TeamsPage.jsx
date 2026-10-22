@@ -6,12 +6,11 @@ import Spinner from '../components/ui/Spinner';
 import { EmptyState, ErrorState } from '../components/ui/StateViews';
 import TeamCard from '../components/teams/TeamCard';
 import TeamFormModal from '../components/teams/TeamFormModal';
-import useFetch from '../hooks/useFetch';
-import { getTeams } from '../api/team.api';
+import useTeams from '../hooks/useTeams';
 
 export default function TeamsPage() {
     const navigate = useNavigate();
-    const { data: teams, loading, error, reload } = useFetch(getTeams);
+    const { teams, loading, error, reload } = useTeams();
     const [createOpen, setCreateOpen] = useState(false);
 
     const newTeamButton = (
