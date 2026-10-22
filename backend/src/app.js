@@ -11,6 +11,10 @@ import teamRoutes from './routes/team.routes.js';
 import taskRoutes from './routes/task.routes.js'
 import errorHandler, { notFound } from './middlewares/errorHandler.js';
 import isAuthenticated from './middlewares/isAuthenticated.js';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const publicDir = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', 'public');
 
 const app = express();
 const isProd = process.env.NODE_ENV === 'production';
@@ -34,6 +38,15 @@ app.get('/api/health', (req, res) => res.json({ status: 'ok' }));
 app.use('/api/auth', authRoutes);
 app.use('/api/teams', isAuthenticated, teamRoutes);
 app.use('/api/tasks', isAuthenticated, taskRoutes);
+
+if (isProd) {
+  app.use(express.static(publicDir));
+  
+  app.use((req, res, next) => {
+    if (req.method !== 'GET' || req.path.startsWith('/api')) return next();
+    res.sendFile(path.join(publicDir, 'index.html'));
+  });
+}
 
 app.use(notFound);
 app.use(errorHandler);
