@@ -5,50 +5,43 @@ import Input from '../ui/Input';
 import Textarea from '../ui/Textarea';
 import Select from '../ui/Select';
 import Button from '../ui/Button';
+import useDirty from '../../hooks/useDirty';
 import { createTask, updateTask } from '../../api/tasks.api';
 import { getTeam } from '../../api/team.api';
 import { validateTask } from '../../utils/validators';
 import { getErrorMessage, getFieldErrors } from '../../utils/errors';
 import { PRIORITY_OPTIONS, STATUS_OPTIONS } from '../../utils/task';
 
-const EMPTY = {
-  title: '',
-  description: '',
-  teamId: '',
-  assigneeId: '',
-  status: 'todo',
-  priority: 'medium',
-  dueDate: ''
-};
+const FORM_ID = 'task-form';
 
-export default function TaskModal({ open, onClose, task, teams, defaultTeamId, onSaved }) {
+const buildInitial = (task, teams, defaultTeamId) =>
+  task
+    ? {
+      title: task.title,
+      description: task.description ?? '',
+      teamId: task.teamId,
+      assigneeId: task.assigneeId ?? '',
+      status: task.status,
+      priority: task.priority,
+      dueDate: task.dueDate ?? '',
+    }
+    : {
+      title: '', description: '', assigneeId: '', status: 'todo', priority: 'medium', dueDate: '',
+      teamId: defaultTeamId || teams[0]?.id || '',
+    };
+
+function TaskModalContent({ onClose, task, teams, defaultTeamId, onSaved }) {
   const isEdit = Boolean(task);
-  const [form, setForm] = useState(EMPTY);
+  const [initial] = useState(() => buildInitial(task, teams, defaultTeamId));
+  const [form, setForm] = useState(initial);
   const [errors, setErrors] = useState({});
   const [members, setMembers] = useState([]);
   const [membersLoading, setMembersLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const isDirty = useDirty(form, initial);
 
   useEffect(() => {
-    if (!open) return;
-    setErrors({});
-    setForm(
-      task
-        ? {
-          title: task.title,
-          description: task.description ?? '',
-          teamId: task.teamId,
-          assigneeId: task.assigneeId ?? '',
-          status: task.status,
-          priority: task.priority,
-          dueDate: task.dueDate ?? '',
-        }
-        : { ...EMPTY, teamId: defaultTeamId || teams[0]?.id || '' }
-    );
-  }, [open, task, defaultTeamId, teams]);
-
-  useEffect(() => {
-    if (!open || !form.teamId) {
+    if (!form.teamId) {
       setMembers([]);
       return undefined;
     }
@@ -63,7 +56,7 @@ export default function TaskModal({ open, onClose, task, teams, defaultTeamId, o
       })
       .finally(() => !ignore && setMembersLoading(false));
     return () => { ignore = true; };
-  }, [open, form.teamId]);
+  }, [form.teamId]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -90,6 +83,7 @@ export default function TaskModal({ open, onClose, task, teams, defaultTeamId, o
     try {
       if (isEdit) await updateTask(task.id, payload);
       else await createTask(payload);
+
       toast.success(isEdit ? 'Task updated' : 'Task created');
       onSaved();
       onClose();
@@ -97,22 +91,42 @@ export default function TaskModal({ open, onClose, task, teams, defaultTeamId, o
       const fieldErrors = getFieldErrors(err);
       if (Object.keys(fieldErrors).length) setErrors(fieldErrors);
       else toast.error(getErrorMessage(err));
-    } finally {
       setSubmitting(false);
     }
   };
 
   return (
-    <Modal open={open} title={isEdit ? 'Edit task' : 'Create task'} onClose={onClose}>
-      <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-4">
+    <Modal
+      open
+      size="lg"
+      title={isEdit ? 'Edit task' : 'Create task'}
+      onClose={onClose}
+      isDirty={isDirty}
+      locked={submitting}
+      footer={
+        <>
+          <Button
+            type="button"
+            size="sm"
+            variant="secondary"
+            onClick={onClose}
+            disabled={submitting}>
+            Cancel
+          </Button>
+          <Button type="submit" form={FORM_ID} size="sm" loading={submitting}>
+            {isEdit ? 'Save changes' : 'Create task'}
+          </Button>
+        </>
+      }
+    >
+      <form id={FORM_ID} onSubmit={handleSubmit} noValidate className="flex flex-col gap-4">
         <Input
           label="Title"
           name="title"
           placeholder="e.g. Design login screen"
           value={form.title}
           onChange={handleChange}
-          error={errors.title}
-          autoFocus />
+          error={errors.title} />
         <Textarea
           label="Description (optional)"
           name="description"
@@ -126,47 +140,53 @@ export default function TaskModal({ open, onClose, task, teams, defaultTeamId, o
             label="Team"
             name="teamId"
             value={form.teamId}
-            onChange={handleChange}
-            error={errors.teamId}
+            onChange={handleChange
+            } error={errors.teamId}
             disabled={isEdit}
-            options={teams.map((t) => ({ value: t.id, label: t.name }))} placeholder="Select team" />
+            options={teams.map((t) => ({
+              value: t.id,
+              label: t.name
+            }))}
+            placeholder="Select team" />
           <Select
-            label="Assignee"
-            name="assigneeId"
+            label="Assignee" name="assigneeId"
             value={form.assigneeId}
             onChange={handleChange}
-            disabled={!form.teamId || membersLoading} placeholder={membersLoading ? 'Loading…' : 'Unassigned'}
-            options={members.map((m) => ({ value: m.id, label: m.name }))}
-          />
+            disabled={!form.teamId || membersLoading}
+            placeholder={membersLoading ? 'Loading…' : 'Unassigned'}
+            options={members.map((m) => ({
+              value: m.id,
+              label: m.name
+            }))} />
+        </div>
+
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4">
           <Select
             label="Status"
             name="status"
             value={form.status}
             onChange={handleChange}
-            options={STATUS_OPTIONS}
-          />
+            options={STATUS_OPTIONS} />
           <Select
             label="Priority"
             name="priority"
             value={form.priority}
             onChange={handleChange}
-            options={PRIORITY_OPTIONS}
-          />
-        </div>
-        <Input
-          label="Due date"
-          name="dueDate"
-          type="date"
-          value={form.dueDate}
-          onChange={handleChange} error={errors.dueDate} />
-
-        <div className="flex justify-end gap-2">
-          <Button type="button" size="sm" variant="secondary" onClick={onClose}>Cancel</Button>
-          <Button type="submit" size="sm" loading={submitting}>
-            {isEdit ? 'Save changes' : 'Create task'}
-          </Button>
+            options={PRIORITY_OPTIONS} />
+          <div className="col-span-2 sm:col-span-1">
+            <Input
+              label="Due date"
+              name="dueDate"
+              type="date"
+              value={form.dueDate}
+              onChange={handleChange} error={errors.dueDate} />
+          </div>
         </div>
       </form>
     </Modal>
   );
+}
+
+export default function TaskModal({ open, ...props }) {
+  return open ? <TaskModalContent {...props} /> : null;
 }
