@@ -65,7 +65,7 @@ export default function RegisterPage() {
                 </>
             }
         >
-            <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-4">
+            <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-1">
                 <Input
                     label="Full Name"
                     name="name"
