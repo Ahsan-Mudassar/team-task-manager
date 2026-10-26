@@ -8,4 +8,7 @@ export const pgPoolConfig = usePartsConfig
     password: DB_PASSWORD,
     database: DB_NAME
   }
-  : { connectionString: DB_URL };
+  : {
+    connectionString: DB_URL,
+    ssl: { rejectUnauthorized: false }
+  };

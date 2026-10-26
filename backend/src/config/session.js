@@ -9,7 +9,11 @@ const useMemory = process.env.SESSION_STORE === 'memory';
 
 const store = useMemory
   ? undefined
-  : new PgSession({ pool: new Pool(pgPoolConfig), createTableIfMissing: true });
+  : new PgSession({
+    pool: new Pool(pgPoolConfig),
+    tableName: 'session',
+    createTableIfMissing: true
+  });
 
 export default session({
   store,
@@ -18,8 +22,8 @@ export default session({
   saveUninitialized: false,
   cookie: {
     httpOnly: true,
-    sameSite: isProd ? 'none': 'lax',
-    secure: isProd ,
+    sameSite: isProd ? 'none' : 'lax',
+    secure: isProd,
     maxAge: 1000 * 60 * 60 * 24 * 7,
   },
 });
