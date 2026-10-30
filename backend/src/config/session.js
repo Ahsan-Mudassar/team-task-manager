@@ -7,6 +7,8 @@ const isProd = process.env.NODE_ENV === 'production';
 const PgSession = pgSession(session);
 const useMemory = process.env.SESSION_STORE === 'memory';
 
+const secure = isProd && process.env.COOKIE_SECURE !== 'false'
+
 const store = useMemory
   ? undefined
   : new PgSession({
@@ -22,8 +24,8 @@ export default session({
   saveUninitialized: false,
   cookie: {
     httpOnly: true,
-    sameSite: isProd ? 'none' : 'lax',
-    secure: isProd,
+    sameSite: secure ? 'none' : 'lax',
+    secure,
     maxAge: 1000 * 60 * 60 * 24 * 7,
   },
 });

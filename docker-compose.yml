@@ -23,11 +23,8 @@ services:
       NODE_ENV: production
       PORT: "8080"
       COOKIE_SECURE: "false"
-      DB_HOST: db
-      DB_PORT: "5432"
-      DB_NAME: taskmanager
-      DB_USER: appuser
-      DB_PASSWORD: localpass
+      DB_SSL: "false"
+      DB_URL: postgres://appuser:localpass@db:5432/taskmanager
       SESSION_SECRET: local_dev_secret_change_me
 
 volumes:
