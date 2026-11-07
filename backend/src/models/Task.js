@@ -31,8 +31,8 @@ Task.init(
             type: DataTypes.DATEONLY
         },
         teamId: {
-            type: DataTypes.UUID
-            , allowNull: false
+            type: DataTypes.UUID,
+            allowNull: false
         },
         assigneeId: {
             type: DataTypes.UUID,
