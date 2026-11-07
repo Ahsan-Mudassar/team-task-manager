@@ -6,11 +6,17 @@ import asyncHandler from '../utils/asyncHandler.js';
 export const addMember = asyncHandler(async (req, res) => {
     const { teamId } = req.params;
 
-    const user = await User.findOne({ where: { email: req.body.email } });
+    const user = await User.findOne({
+        where: {
+            email: req.body.email
+        }
+    });
 
     if (!user) throw new ApiError(404, 'No user registered with this email');
 
-    const exists = await TeamMember.findOne({ where: { teamId, userId: user.id } });
+    const exists = await TeamMember.findOne({
+        where: { teamId, userId: user.id }
+    });
 
     if (exists) throw new ApiError(409, 'User is already your team member');
 
@@ -41,7 +47,9 @@ export const removeMember = asyncHandler(async (req, res) => {
         throw new ApiError(403, 'You do not have permission for this action');
     }
 
-    const target = await TeamMember.findOne({ where: { teamId, userId } });
+    const target = await TeamMember.findOne({
+        where: { teamId, userId }
+    });
 
     if (!target) throw new ApiError(404, 'Member not found');
     if (target.role === 'owner') {
@@ -49,11 +57,20 @@ export const removeMember = asyncHandler(async (req, res) => {
     }
 
     await sequelize.transaction(async (t) => {
-        await TeamMember.destroy({ where: { teamId, userId }, transaction: t });
+        await TeamMember.destroy({
+            where: { teamId, userId },
+            transaction: t
+        });
 
         await Task.update(
             { assigneeId: null },
-            { where: { teamId, assigneeId: userId }, transaction: t }
+            {
+                where: {
+                    teamId,
+                    assigneeId: userId
+                },
+                transaction: t
+            }
         );
     });
 

@@ -1,5 +1,6 @@
 import { sequelize } from '../config/db.js';
 import { Team, TeamMember, User } from '../models/index.js';
+import ApiError from '../utils/ApiError.js';
 import asyncHandler from '../utils/asyncHandler.js';
 
 export const createTeam = asyncHandler(async (req, res) => {
@@ -11,12 +12,18 @@ export const createTeam = asyncHandler(async (req, res) => {
         );
 
         await TeamMember.create(
-            { teamId: created.id, userId: req.user.id, role: 'owner' },
+            {
+                teamId: created.id,
+                userId: req.user.id,
+                role: 'owner'
+            },
             { transaction: t }
         );
 
         return created;
     });
+    if (!team) throw new ApiError(400, "Some thing went wrong when creating you team")
+
     res
         .status(201)
         .json({ team, message: "Team successfully created" });
@@ -25,10 +32,15 @@ export const createTeam = asyncHandler(async (req, res) => {
 export const listMyTeams = asyncHandler(async (req, res) => {
     const teams = await req.user.getTeams({ joinTableAttributes: ['role'] });
 
+    if (!teams) throw new ApiError(400, "Some thing went wrong when fetching you teams")
+
     res
         .status(200)
         .json({
-            teams: teams.map((t) => ({ ...t.toJSON(), role: t.TeamMember.role })),
+            teams: teams.map((t) => ({
+                ...t.toJSON(),
+                role: t.TeamMember.role
+            })),
             message: "Your teams list fetch successfuly"
         });
 });
@@ -46,6 +58,8 @@ export const getTeam = asyncHandler(async (req, res) => {
             },
         ],
     });
+    if (!team) throw new ApiError(404, "Team not found")
+
     res
         .status(200)
         .json({
@@ -57,7 +71,9 @@ export const getTeam = asyncHandler(async (req, res) => {
 export const updateTeam = asyncHandler(async (req, res) => {
     const teamId = req.params.teamId
     const team = await Team.findByPk(teamId);
-    await team.update(req.body);
+    if (!team) throw new ApiError(404, "Team not found")
+
+    await team?.update(req.body);
 
     res
         .status(200)
@@ -66,9 +82,11 @@ export const updateTeam = asyncHandler(async (req, res) => {
 
 export const deleteTeam = asyncHandler(async (req, res) => {
     const teamId = req.params.teamId
+    if (!teamId) throw new ApiError(404, "Team not found")
+
     await Team.destroy({ where: { id: teamId } });
 
     res
-        .status(204)
+        .status(200)
         .json({ message: "Team successfuly deleted" });
 });
