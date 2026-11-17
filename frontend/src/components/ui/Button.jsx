@@ -16,7 +16,7 @@ export default function Button({ children, loading = false, variant = 'primary',
     <button
       disabled={loading || props.disabled}
       className={
-        `inline-flex items-center justify-center gap-2 text-[13px] font-semibold transition disabled:cursor-not-allowed disabled:opacity-70 
+        `inline-flex items-center justify-center gap-2 text-[13px] font-semibold transition disabled:cursor-not-allowed disabled:opacity-70 cursor-pointer 
         ${VARIANTS[variant]} 
         ${SIZES[size]} 
         ${className}`
