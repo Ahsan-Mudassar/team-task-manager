@@ -87,10 +87,10 @@ export default function Sidebar({ open, onClose }) {
             </NavLink>
           ))}
         </div>
-        <button onClick={() => setCreateOpen(true)}
-          className="mt-2 mx-3.5 flex items-center justify-center gap-1 rounded-xl bg-[#eaedff] px-2 py-2 text-[13px] font-medium text-primary hover:bg-line">
-          <Plus size={14} /> New Team
-        </button>
+          <button onClick={() => setCreateOpen(true)}
+            className="mt-2 mx-[14px] flex items-center justify-center gap-1 rounded-xl bg-[#eaedff] px-2 py-2 text-[13px] font-medium text-primary hover:bg-line">
+            <Plus size={14} /> New Team
+          </button>
 
         <div className="p-2">
           <div className="flex items-center justify-between rounded-xl bg-white p-4 shadow-sm">

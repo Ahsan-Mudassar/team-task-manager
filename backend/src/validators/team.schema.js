@@ -12,5 +12,11 @@ export const updateTeamSchema = Joi.object({
 }).min(1);
 
 export const addMemberSchema = Joi.object({
-  email: Joi.string().trim().lowercase().email().max(120).required(),
+  email: Joi
+    .string()
+    .trim()
+    .lowercase()
+    .email()
+    .max(120)
+    .required(),
 });

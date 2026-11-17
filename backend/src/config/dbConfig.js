@@ -1,6 +1,8 @@
-const { DB_HOST, DB_PORT, DB_NAME, DB_USER, DB_PASSWORD, DB_URL } = process.env;
+const { DB_HOST, DB_PORT, DB_NAME, DB_USER, DB_PASSWORD, DB_URL, DB_SSL } = process.env;
 
 export const usePartsConfig = Boolean(DB_HOST);
+
+const ssl = DB_SSL === 'false' ? false : { rejectUnauthorized: false };
 
 export const pgPoolConfig = usePartsConfig
   ? {
@@ -8,4 +10,7 @@ export const pgPoolConfig = usePartsConfig
     password: DB_PASSWORD,
     database: DB_NAME
   }
-  : { connectionString: DB_URL };
+  : {
+    connectionString: DB_URL,
+    ssl
+  };

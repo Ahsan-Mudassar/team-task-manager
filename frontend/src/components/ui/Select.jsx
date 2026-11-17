@@ -9,7 +9,7 @@ export default function Select({ label, error, id, options, placeholder, ...prop
       <select
         id={inputId}
         aria-invalid={Boolean(error)}
-        className={`h-10 w-full rounded-lg bg-white px-3 text-sm text-ink shadow-sm outline-none ring-1 transition focus:ring-2 disabled:bg-surface disabled:text-muted ${error ? 'ring-danger focus:ring-danger' : 'ring-line focus:ring-primary'
+        className={`h-10 w-full rounded-lg bg-white px-3 text-base sm:text-sm text-ink shadow-sm outline-none ring-1 transition focus:ring-2 disabled:bg-surface disabled:text-muted ${error ? 'ring-danger focus:ring-danger' : 'ring-line focus:ring-primary'
           }`}
         {...props}
       >

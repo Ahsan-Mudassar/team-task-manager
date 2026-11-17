@@ -17,14 +17,20 @@ const taskInclude = [
 ];
 
 const getMembership = async (teamId, userId) => {
-    const membership = await TeamMember.findOne({ where: { teamId, userId } });
+    const membership = await TeamMember.findOne({
+        where: { teamId, userId }
+    });
+
     if (!membership) throw new ApiError(404, 'Team not found');
     return membership;
 };
 
 const assertAssigneeInTeam = async (teamId, assigneeId) => {
     if (!assigneeId) return;
-    const isMember = await TeamMember.findOne({ where: { teamId, userId: assigneeId } });
+    const isMember = await TeamMember.findOne({
+        where: { teamId, userId: assigneeId }
+    });
+
     if (!isMember) throw new ApiError(400, 'Assignee must be a member of the team');
 };
 
@@ -63,6 +69,7 @@ export const getReminders = asyncHandler(async (req, res) => {
     });
 
     const todayStr = toDateString(today);
+
     res.json({
         overdue: tasks.filter((t) => t.dueDate < todayStr),
         dueSoon: tasks.filter((t) => t.dueDate >= todayStr),
@@ -76,7 +83,11 @@ export const createTask = asyncHandler(async (req, res) => {
     await getMembership(teamId, req.user.id);
     await assertAssigneeInTeam(teamId, assigneeId);
 
-    const created = await Task.create({ ...req.body, createdById: req.user.id });
+    const created = await Task.create({
+        ...req.body,
+        createdById: req.user.id
+    });
+
     const task = await Task.findByPk(created.id, {
         include: taskInclude,
     });
@@ -99,6 +110,7 @@ export const listTasks = asyncHandler(async (req, res) => {
     if (assigneeId) where.assigneeId = assigneeId === 'me' ? req.user.id : assigneeId;
     if (status) where.status = status;
     if (priority) where.priority = priority;
+
     if (search) {
         where[Op.or] = [
             { title: { [Op.iLike]: `%${search}%` } },
@@ -162,6 +174,6 @@ export const deleteTask = asyncHandler(async (req, res) => {
 
     await task.destroy();
     res
-        .status(204)
+        .status(200)
         .json({ message: "Task deleted successfully" });
 });
