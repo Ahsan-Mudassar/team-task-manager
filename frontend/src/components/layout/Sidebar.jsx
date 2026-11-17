@@ -86,19 +86,11 @@ export default function Sidebar({ open, onClose }) {
               <span className="truncate">{t.name}</span>
             </NavLink>
           ))}
-<<<<<<< Updated upstream
-          <button onClick={() => setCreateOpen(true)}
-            className="mt-2 flex items-center justify-center gap-1 rounded-xl bg-[#eaedff] px-4 py-2 text-[13px] font-medium text-primary hover:bg-line">
-            <Plus size={14} /> New Team
-          </button>
-        </div>
-=======
         </div>
         <button onClick={() => setCreateOpen(true)}
           className="mt-2 mx-3.5 flex items-center justify-center gap-1 rounded-xl bg-[#eaedff] px-2 py-2 text-[13px] font-medium text-primary hover:bg-line">
           <Plus size={14} /> New Team
         </button>
->>>>>>> Stashed changes
 
         <div className="p-2">
           <div className="flex items-center justify-between rounded-xl bg-white p-4 shadow-sm">
